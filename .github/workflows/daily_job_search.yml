@@ -7,9 +7,6 @@ on:
 
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
   search_jobs:
     runs-on: ubuntu-latest
@@ -34,14 +31,3 @@ jobs:
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
           RECEIVER_EMAIL: ${{ secrets.RECEIVER_EMAIL }}
         run: python main.py
-
-      - name: Commit updated sent_jobs.json
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-
-          git add data/sent_jobs.json
-
-          git diff --cached --quiet || git commit -m "Update tracked jobs"
-
-          git push
