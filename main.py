@@ -1,44 +1,33 @@
-from fetchers.infopark import fetch_jobs
-from utils.job_tracker import (
-    load_sent_jobs,
-    save_sent_jobs,
-    is_new_job,
-    add_job
-)
+from fetchers.infopark import fetch_jobs as fetch_infopark_jobs
+from fetchers.technopark import fetch_jobs as fetch_technopark_jobs
+from utils.job_tracker import load_sent_jobs, save_sent_jobs, is_new_job, add_job
 from email_sender import send_email
 
-print("\nSearching Infopark...\n")
+print("Searching Infopark...")
+infopark_jobs = fetch_infopark_jobs()
 
-jobs = fetch_jobs()
+print("Searching Technopark...")
+technopark_jobs = fetch_technopark_jobs()
+
+jobs = infopark_jobs + technopark_jobs
+
+print(f"Total jobs fetched: {len(jobs)}")
 
 sent_jobs = load_sent_jobs()
 
 new_jobs = []
 
 for job in jobs:
-
     if is_new_job(job, sent_jobs):
         new_jobs.append(job)
         add_job(job, sent_jobs)
 
 save_sent_jobs(sent_jobs)
 
-print(f"\nFound {len(new_jobs)} new job(s)\n")
+print(f"Found {len(new_jobs)} new job(s).")
 
 if new_jobs:
-
-    for job in new_jobs:
-
-        print("=" * 60)
-        print(f"Title       : {job.title}")
-        print(f"Company     : {job.company}")
-        print(f"Posted Date : {job.posted_date}")
-        print(f"Location    : {job.location}")
-        print(f"Source      : {job.source}")
-        print(f"Link        : {job.link}")
-
-    print("\nSending email...\n")
     send_email(new_jobs)
-
+    print("Email sent successfully!")
 else:
     print("No new jobs found. Email not sent.")
